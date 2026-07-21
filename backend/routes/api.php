@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\SpecialtyController;
 use App\Http\Controllers\Auth\AdminAuthController;
 use App\Http\Controllers\Auth\DoctorAuthController;
 use App\Http\Controllers\Auth\PatientAuthController;
@@ -18,83 +19,76 @@ Route::get('/user', function (Request $request) {
 
 /*
 |--------------------------------------------------------------------------
-| Patient Routes
+| Public Routes
 |--------------------------------------------------------------------------
 */
 
-Route::post('/patient/register', [
-    PatientAuthController::class,
-    'register'
-]);
+/* ============== Patient ============== */
 
-Route::post('/patient/login', [
-    PatientAuthController::class,
-    'login'
-]);
+Route::prefix('patient')->group(function () {
 
-/*
-|--------------------------------------------------------------------------
-| Admin Routes
-|--------------------------------------------------------------------------
-*/
+    Route::post('/register', [PatientAuthController::class, 'register']);
 
-Route::post('/admin/login', [
-    AdminAuthController::class,
-    'login'
-]);
+    Route::post('/login', [PatientAuthController::class, 'login']);
 
-/*
-|--------------------------------------------------------------------------
-| Doctor Routes
-|--------------------------------------------------------------------------
-*/
-
-Route::post('/doctor/login', [
-    DoctorAuthController::class,
-    'login'
-]);
-
-/*
-|--------------------------------------------------------------------------
-| Protected Routes (Sanctum)
-|--------------------------------------------------------------------------
-*/
-
-Route::middleware('auth:sanctum')->group(function () {
-
-    /* ============== Patient ============== */
-
-    Route::get('/patient/profile', [
-        PatientAuthController::class,
-        'profile'
-    ]);
-
-    Route::post('/patient/logout', [
-        PatientAuthController::class,
-        'logout'
-    ]);
-
-    /* =============== Admin =============== */
-
-    Route::get('/admin/profile', [
-        AdminAuthController::class,
-        'profile'
-    ]);
-
-    Route::post('/admin/logout', [
-        AdminAuthController::class,
-        'logout'
-    ]);
-
-    /* =============== Doctor ============== */
-
-    Route::get('/doctor/profile', [
-        DoctorAuthController::class,
-        'profile'
-    ]);
-
-    Route::post('/doctor/logout', [
-        DoctorAuthController::class,
-        'logout'
-    ]);
 });
+
+/* =============== Admin =============== */
+
+Route::prefix('admin')->group(function () {
+
+    Route::post('/login', [AdminAuthController::class, 'login']);
+
+});
+
+/* =============== Doctor ============== */
+
+Route::prefix('doctor')->group(function () {
+
+    Route::post('/login', [DoctorAuthController::class, 'login']);
+
+});
+
+/*
+|--------------------------------------------------------------------------
+| Protected Routes
+|--------------------------------------------------------------------------
+*/
+
+/* ============== Patient ============== */
+
+Route::prefix('patient')
+    ->middleware('auth:sanctum')
+    ->group(function () {
+
+        Route::get('/profile', [PatientAuthController::class, 'profile']);
+
+        Route::post('/logout', [PatientAuthController::class, 'logout']);
+
+    });
+
+/* =============== Admin =============== */
+
+Route::prefix('admin')
+    ->middleware('auth:sanctum')
+    ->group(function () {
+
+        Route::get('/profile', [AdminAuthController::class, 'profile']);
+
+        Route::post('/logout', [AdminAuthController::class, 'logout']);
+
+        Route::apiResource('specialties', SpecialtyController::class);
+
+    });
+
+/* =============== Doctor ============== */
+
+Route::prefix('doctor')
+    ->middleware('auth:sanctum')
+    ->group(function () {
+
+        Route::get('/profile', [DoctorAuthController::class, 'profile']);
+
+        Route::post('/logout', [DoctorAuthController::class, 'logout']);
+
+    });
